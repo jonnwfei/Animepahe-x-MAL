@@ -1,27 +1,14 @@
 {
-  "name": "Anipahe x Mal Extension",
-  "version": "0.1.0",
-  "description": "Enabling Mal updates while watching Anipahe.",
-  "permissions": ["storage", "tabs"],
+  "name": "Animepahe Smart Player",
+  "version": "1.0",
+  "description": "Adds 'Next Episode' shortcut (Shift+N) to AnimePahe.",
+  "permissions": ["scripting"],
   "host_permissions": ["https://*.animepahe.si/play/*"],
-  "background": {
-    "service_worker": "background.js"
-  },
   "content_scripts": [
     {
       "matches": ["https://*.animepahe.si/play/*"],
-      "js": ["contentScript.js"]
-    }
-  ],
-  "web_accessible_resources": [
-    {
-      "resources": [
-        "assets/bookmark.png",
-        "assets/play.png",
-        "assets/delete.png",
-        "assets/save.png"
-      ],
-      "matches": ["https://*.animepahe.si/play/*"]
+      "js": ["contentScript.js"],
+      "run_at": "document_idle"
     }
   ],
   "action": {

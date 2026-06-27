@@ -1,0 +1,32 @@
+{
+  "name": "Animepahe Smart Player",
+  "version": "1.0",
+  "description": "Adds 'Next Episode' shortcut (Shift+N) and 'Previous Episode' shortcut (Shift+Z) to AnimePahe.",
+  "permissions": ["scripting"],
+  "host_permissions": [
+    "https://*.animepahe.si/play/*",
+    "https://*.animepahe.pw/play/*"
+  ],
+  "background": { "service_worker": "background.js", "type": "module" },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://*.animepahe.pw/play/*",
+        "https://*.animepahe.si/play/*",
+        "https://*.animepahe.com/play/*"
+      ],
+      "js": ["contentScript.js"],
+      "run_at": "document_idle"
+    }
+  ],
+  "action": {
+    "default_icon": {
+      "16": "assets/ext-icon.png",
+      "24": "assets/ext-icon.png",
+      "32": "assets/ext-icon.png"
+    },
+    "default_title": "Animepahe x Mal",
+    "default_popup": "popup.html"
+  },
+  "manifest_version": 3
+}

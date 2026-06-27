@@ -4,8 +4,9 @@
   "description": "Adds 'Next Episode' shortcut (Shift+N) and 'Previous Episode' shortcut (Shift+Z) to AnimePahe.",
   "permissions": ["scripting"],
   "host_permissions": [
+    "https://*.animepahe.pw/play/*",
     "https://*.animepahe.si/play/*",
-    "https://*.animepahe.pw/play/*"
+    "https://*.animepahe.com/play/*"
   ],
   "background": { "service_worker": "background.js", "type": "module" },
   "content_scripts": [
@@ -21,9 +22,9 @@
   ],
   "action": {
     "default_icon": {
-      "16": "assets/ext-icon.png",
-      "24": "assets/ext-icon.png",
-      "32": "assets/ext-icon.png"
+      "16": "icons/ext-icon.png",
+      "24": "icons/ext-icon.png",
+      "32": "icons/ext-icon.png"
     },
     "default_title": "Animepahe x Mal",
     "default_popup": "popup.html"

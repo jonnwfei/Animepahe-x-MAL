@@ -9,17 +9,20 @@ const navElements = {
   prev: document.querySelector(SELECTORS.prev) as HTMLAnchorElement | null,
 };
 
-() => {
-  let currentAnimeId = "";
-
-  chrome.runtime.onMessage.addListener((obj, sender, response) => {
-    const { type, videoId } = obj;
-    if (type === "ANIMEPAHE_QUERY_PARAMS") {
-      console.log("Received videoId:", videoId);
-      currentAnimeId = videoId;
+chrome.runtime.onMessage.addListener(
+  (
+    msg: any,
+    _sender: chrome.runtime.MessageSender,
+    sendResponse: (response?: any) => void,
+  ) => {
+    if (msg.type === "GET_ANIME_NAME") {
+      const el = document.querySelector(".theatre-info h1 a");
+      const name = el?.textContent?.trim() || document.title;
+      console.log("I got here name");
+      sendResponse({ name });
     }
-  });
-};
+  },
+);
 
 // --- Initialization ---
 console.log("AnimePahe Navigation Loaded");

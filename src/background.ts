@@ -1,12 +1,30 @@
-chrome.tabs.onUpdated.addListener((tabId, tab) => {
-  if (tab.url && tab.url.includes("animepahe.")) {
-    const queryParams = tab.url.split("play/")[1];
-    const urlParams = new URLSearchParams(queryParams);
-    console.log("Query Params:", urlParams);
+const PLAY_URL = /^https:\/\/[^/]*animepahe\.[^/]+\/play\//;
 
-    chrome.tabs.sendMessage(tabId, {
-      type: "ANIMEPAHE_QUERY_PARAMS",
-      videoId: urlParams.get("/"),
+interface AnimeNameResponse {
+  onPlayPage: boolean;
+  name?: string;
+}
+
+chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
+  if (msg.type !== "GET_ANIME_NAME") return;
+
+  chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+    const tab = tabs[0];
+
+    // NOT on a play Page
+    if (!tab?.id || !tab.url || PLAY_URL.test(tab.url)) {
+      sendResponse({ onPlayPage: false } satisfies AnimeNameResponse);
+      return;
+    }
+
+    // On a play page
+    chrome.tabs.sendMessage(tab.id, { type: "GET_ANIME_NAME" }, (res) => {
+      sendResponse({
+        onPlayPage: true,
+        name: res?.name ?? "",
+      } satisfies AnimeNameResponse);
     });
-  }
+  });
+
+  return true; // Keep the message channel open for sendResponse
 });

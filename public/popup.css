@@ -1,54 +1,55 @@
+body {
+  background-color: #191308; /* Main dark gray background */
+  color: #e0e0e0;            /* Light gray text for readability */
+  margin: 0;                 /* Removes default browser spacing */
+}
+
 .container {
   width: 280px;
-  color: #314d3e;
+  background-color: #191308;
+  border: none;
 }
 
 .title {
   font-size: 14px;
   font-weight: bold;
-  padding: 8px;
+  padding: 12px 8px;         /* A bit more padding makes backgrounds look better */
+  margin: 0;                 /* Removes the default space around h1 tags */
+  background-color: #322a26; /* Darker shade for the header area */
+  color: #ffffff;            /* Bright white text for the title */
+  border-bottom: 1px solid #333; /* Optional: adds a subtle line to separate the header */
 }
 
-.textbox {
-  width: 100%;
-  font-size: 12px;
-  margin: 0;
-  padding: 0px 2px;
+.anime-link {
+  color: #edfccc; 
+  text-decoration: none;
 }
 
-.textbox:focus {
-  outline: 0;
-  border-color: #66afe9;
-}
-
-.bookmarks {
-  margin: 5px 5px;
-  padding: 3px;
-}
-
-.bookmark {
+.button-container {
   display: flex;
-  border-bottom-color: #00254d;
-  border-bottom-width: 1px;
-  border-bottom-style: solid;
-  border-radius: 0.8rem;
-  padding: 3px;
-  padding-bottom: 7px;
-  margin-bottom: 7px;
+  justify-content: space-between;
+  padding: 2px;
+  gap: 2px;
 }
 
-.bookmark-title {
-  padding-left: 2px;
-}
-
-.bookmark-controls img {
-  margin: 0 4px;
-  width: 18px;
-  height: 18px;
+.nav-btn {
+  display: flex;
+  align-items: center;
+  gap: 1px;
+  padding: 0px 3px;
+  font-size: 32px;
   cursor: pointer;
+  background: none;
+  border: none;
 }
 
-.bookmark-controls {
-  flex: auto;
-  text-align: right;
+.nav-btn:hover {
+  opacity: 0.7;
+}
+
+.btn-icon {
+  width: 32px;   /* Match this to your font size */
+  height: 32px;  /* Keeps the icon square */
+  object-fit: contain;
+  color: #f0eBd8;
 }

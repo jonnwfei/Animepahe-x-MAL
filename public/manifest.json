@@ -6,7 +6,8 @@
   "host_permissions": [
     "https://*.animepahe.pw/play/*",
     "https://*.animepahe.si/play/*",
-    "https://*.animepahe.com/play/*"
+    "https://*.animepahe.com/play/*",
+    "https://api.myanimelist.net/*"
   ],
   "background": { "service_worker": "background.js", "type": "module" },
   "content_scripts": [

@@ -1,3 +1,6 @@
+// @author John Cai
+// @date 2024-07-11
+
 const PLAY_URL = /^https:\/\/[^/]*animepahe\.[^/]+\/play\//;
 
 interface AnimeNameResponse {
@@ -12,17 +15,17 @@ chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
     const tab = tabs[0];
 
     // NOT on a play Page
-    if (!tab?.id || !tab.url || PLAY_URL.test(tab.url)) {
+    if (!tab?.id || !tab.url || !PLAY_URL.test(tab.url)) {
       sendResponse({ onPlayPage: false } satisfies AnimeNameResponse);
       return;
     }
 
     // On a play page
-    chrome.tabs.sendMessage(tab.id, { type: "GET_ANIME_NAME" }, (res) => {
+    chrome.tabs.sendMessage(tab.id, { type: "SCRAPE_ANIME_NAME" }, (res) => {
       sendResponse({
         onPlayPage: true,
         name: res?.name ?? "",
-      } satisfies AnimeNameResponse);
+      });
     });
   });
 

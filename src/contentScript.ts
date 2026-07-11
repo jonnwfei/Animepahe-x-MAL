@@ -1,3 +1,6 @@
+// @author John Cai
+// @date 2024-07-11
+
 type Direction = "next" | "prev";
 const SELECTORS = {
   next: ".sequel a",
@@ -15,10 +18,10 @@ chrome.runtime.onMessage.addListener(
     _sender: chrome.runtime.MessageSender,
     sendResponse: (response?: any) => void,
   ) => {
-    if (msg.type === "GET_ANIME_NAME") {
+    if (msg.type === "SCRAPE_ANIME_NAME") {
       const el = document.querySelector(".theatre-info h1 a");
-      const name = el?.textContent?.trim() || document.title;
-      console.log("I got here name");
+
+      const name = el?.getAttribute("title")?.toString() || document.title;
       sendResponse({ name });
     }
   },

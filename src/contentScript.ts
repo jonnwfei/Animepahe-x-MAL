@@ -132,10 +132,6 @@ function initMessageListener() {
       sendResponse({ success: true });
       NavigationManager.trigger(msg.direction);
     }
-    if (msg.type === "SHOW_OVERLAY") {
-      OverlayManager.show(msg.text, msg.isError);
-      sendResponse({ success: true });
-    }
   });
 }
 

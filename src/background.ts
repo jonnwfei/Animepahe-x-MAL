@@ -12,10 +12,10 @@ interface AnimeNameResponse {
 chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
   switch (msg.type) {
     case "GET_ANIME_NAME":
-      handleAnimeNameResponse(sendResponse);
+      handleAnimeName(sendResponse);
       return true; // Keep the message channel open for sendResponse
     case "FETCH_MAL_DATA":
-      fetchMALData(msg.query, sendResponse);
+      handleFetchMALData(msg.query, sendResponse);
       return true;
     default:
       sendResponse({ error: "Unknown message type" });
@@ -23,9 +23,7 @@ chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
   }
 });
 
-function handleAnimeNameResponse(
-  sendResponse: (response: AnimeNameResponse) => void,
-) {
+function handleAnimeName(sendResponse: (response: AnimeNameResponse) => void) {
   chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
     const tab = tabs[0];
 
@@ -51,7 +49,7 @@ function handleAnimeNameResponse(
   return true;
 }
 
-function fetchMALData(
+function handleFetchMALData(
   searchQuery: string,
   sendResponse: (response: any) => void,
 ) {

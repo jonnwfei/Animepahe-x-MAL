@@ -7,6 +7,9 @@
     "https://*.animepahe.pw/play/*",
     "https://*.animepahe.si/play/*",
     "https://*.animepahe.com/play/*",
+    "https://*.animepahe.pw/anime/*",
+    "https://*.animepahe.si/anime/*",
+    "https://*.animepahe.com/anime/*",
     "https://api.myanimelist.net/*"
   ],
   "background": { "service_worker": "background.js" },
@@ -15,7 +18,10 @@
       "matches": [
         "https://*.animepahe.pw/play/*",
         "https://*.animepahe.si/play/*",
-        "https://*.animepahe.com/play/*"
+        "https://*.animepahe.com/play/*",
+        "https://*.animepahe.pw/anime/*",
+        "https://*.animepahe.si/anime/*",
+        "https://*.animepahe.com/anime/*"
       ],
       "js": ["contentScript.js"],
       "run_at": "document_idle"

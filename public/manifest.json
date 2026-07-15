@@ -2,7 +2,7 @@
   "name": "Animepahe Smart Player",
   "version": "1.0",
   "description": "Adds 'Next Episode' shortcut (Shift+N) and 'Previous Episode' shortcut (Shift+Z) to AnimePahe.",
-  "permissions": ["scripting", "activeTab"],
+  "permissions": ["scripting", "activeTab", "storage"],
   "host_permissions": [
     "https://*.animepahe.pw/play/*",
     "https://*.animepahe.si/play/*",

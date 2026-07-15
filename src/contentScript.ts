@@ -2,123 +2,151 @@
 // @date 2024-07-11
 
 type Direction = "next" | "prev";
-const SELECTORS = {
-  next: ".sequel a",
-  prev: ".prequel a",
+
+const CONFIG = {
+  selectors: {
+    next: ".sequel a",
+    prev: ".prequel a",
+    title: ".theatre-info h1 a",
+  },
+  keys: {
+    next: "x",
+    prev: "z",
+  },
+  storageKey: "animePaheNav",
+};
+
+const OverlayManager = {
+  initStyles() {
+    if (document.getElementById("ap-overlay-styles")) return;
+
+    const style = document.createElement("style");
+    style.id = "ap-overlay-styles";
+    style.textContent = `
+      #ap-overlay {
+      position: fixed;
+      top: 15%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      padding: 15px 25px;
+      color: #fff;
+      fontSize: 18px;
+      borderRadius: 8px;
+      fontFamily: 'Segoe UI', sans-serif;
+      fontWeight: 600;
+      boxShadow: 0 4px 15px rgba(0,0,0,0.4);
+      zIndex: 10000;
+      transition: opacity 0.5s ease;
+    }
+      .ap-overlay-success { background: rgba(40, 40, 40, 0.95); }
+      .ap-overlay-error { background: rgba(200, 50, 50, 0.9); }
+      `;
+    document.head.appendChild(style);
+  },
+  show(text: string, isError = false) {
+    this.initStyles();
+
+    const overlay = document.createElement("div");
+    overlay.className = `ap-overlay ${isError ? "ap-overlay-error" : "ap-overlay-success"}`;
+    overlay.innerText = text;
+
+    document.body.appendChild(overlay);
+
+    setTimeout(() => {
+      overlay.style.opacity = "0";
+      setTimeout(() => overlay.remove(), 500);
+    }, 2500);
+  },
+};
+
+const NavigationManager = {
+  getElement(dir: Direction): HTMLAnchorElement | null {
+    return document.querySelector(
+      CONFIG.selectors[dir],
+    ) as HTMLAnchorElement | null;
+  },
+  trigger(dir: Direction) {
+    const element = this.getElement(dir);
+    if (element) {
+      sessionStorage.setItem(CONFIG.storageKey, `Arrived at ${dir} episode`);
+      element.click();
+    } else {
+      OverlayManager.show(`No ${dir} episode found`, true);
+    }
+  },
+
+  checkFeedback() {
+    const msg = sessionStorage.getItem(CONFIG.storageKey);
+    if (msg) {
+      OverlayManager.show(msg);
+      sessionStorage.removeItem(CONFIG.storageKey);
+    }
+  },
+
+  bindKeyboardShortcuts() {
+    document.addEventListener("keydown", (e) => {
+      if (!e.shiftKey) return;
+
+      const key = e.key.toLowerCase();
+      if (key === CONFIG.keys.next) this.trigger("next");
+      if (key === CONFIG.keys.prev) this.trigger("prev");
+    });
+  },
+
+  bindClickListeners() {
+    const nextBtn = this.getElement("next");
+    const prevBtn = this.getElement("prev");
+
+    if (nextBtn)
+      nextBtn.addEventListener("click", () =>
+        sessionStorage.setItem(CONFIG.storageKey, "Arrived at next episode"),
+      );
+    if (prevBtn)
+      prevBtn.addEventListener("click", () =>
+        sessionStorage.setItem(CONFIG.storageKey, "Arrived at prev episode"),
+      );
+  },
 };
 
 const navElements = {
-  next: document.querySelector(SELECTORS.next) as HTMLAnchorElement | null,
-  prev: document.querySelector(SELECTORS.prev) as HTMLAnchorElement | null,
+  next: document.querySelector(
+    CONFIG.selectors.next,
+  ) as HTMLAnchorElement | null,
+  prev: document.querySelector(
+    CONFIG.selectors.prev,
+  ) as HTMLAnchorElement | null,
 };
 
-chrome.runtime.onMessage.addListener(
-  (
-    msg: any,
-    _sender: chrome.runtime.MessageSender,
-    sendResponse: (response?: any) => void,
-  ) => {
+function initMessageListener() {
+  chrome.runtime.onMessage.addListener((msg: any, _sender, sendResponse) => {
     if (msg.type === "SCRAPE_ANIME_NAME") {
-      const el = document.querySelector(".theatre-info h1 a");
-
-      const name = el?.getAttribute("title")?.toString() || document.title;
+      const el = document.querySelector(CONFIG.selectors.title);
+      if (!el) {
+        console.warn("Anime title element not found.");
+        return;
+      }
+      const name = el.getAttribute("title")?.toString() || document.title;
       sendResponse({ name });
     }
-  },
-);
-
-// --- Initialization ---
-console.log("AnimePahe Navigation Loaded");
-
-checkNavigationFeedback();
-
-if (navElements.next) {
-  navElements.next.addEventListener("click", () => recordState("next"));
-}
-if (navElements.prev) {
-  navElements.prev.addEventListener("click", () => recordState("prev"));
+    if (msg.type === "NAVIGATE") {
+      sendResponse({ success: true });
+      NavigationManager.trigger(msg.direction);
+    }
+    if (msg.type === "SHOW_OVERLAY") {
+      OverlayManager.show(msg.text, msg.isError);
+      sendResponse({ success: true });
+    }
+  });
 }
 
-// Listen for Shift + Z / X
-document.addEventListener("keydown", (e) => {
-  if (!e.shiftKey) return;
+function init() {
+  console.log("AnimePahe Navigation Loaded");
 
-  const key = e.key.toLowerCase();
+  NavigationManager.bindKeyboardShortcuts();
+  NavigationManager.bindClickListeners();
+  NavigationManager.checkFeedback();
 
-  if (key === "x") {
-    triggerNavigation("next");
-  } else if (key === "z") {
-    triggerNavigation("prev");
-  }
-});
-
-/**
- * handles navigation of site to the prev/next episode
- *
- * @param {Direction} dir
- */
-function triggerNavigation(dir: Direction) {
-  const element = navElements[dir];
-  if (element) {
-    element.click();
-  } else {
-    showOverlay(`No ${dir} episode found`, true);
-  }
+  initMessageListener();
 }
 
-/**
- * Saves the state to sessionStorage so the next page knows what happened.
- */
-function recordState(dir: Direction) {
-  sessionStorage.setItem("animePaheNav", `Arrived at ${dir} episode`);
-}
-
-/**
- * Main function that calls the prev/next episode message
- */
-function checkNavigationFeedback() {
-  const msg = sessionStorage.getItem("animePaheNav");
-
-  if (msg) {
-    showOverlay(msg);
-    sessionStorage.removeItem("animePaheNav");
-  }
-}
-
-/**
- * Shows a {text} msg on the current window with a 2500ms delay
- *
- * @param {string} text
- * @param isError defaults to false
- */
-function showOverlay(text: string, isError = false) {
-  // Create container
-  const overlay = document.createElement("div");
-
-  // CSS Styles for a centered, sleek box
-  overlay.style.position = "fixed";
-  overlay.style.top = "15%";
-  overlay.style.left = "50%";
-  overlay.style.transform = "translate(-50%, -50%)";
-  overlay.style.padding = "15px 25px";
-  overlay.style.background = isError
-    ? "rgba(200, 50, 50, 0.9)"
-    : "rgba(40, 40, 40, 0.95)";
-  overlay.style.color = "#fff";
-  overlay.style.fontSize = "18px";
-  overlay.style.borderRadius = "8px";
-  overlay.style.fontFamily = "Segoe UI, sans-serif";
-  overlay.style.fontWeight = "600";
-  overlay.style.boxShadow = "0 4px 15px rgba(0,0,0,0.4)";
-  overlay.style.zIndex = "10000";
-  overlay.style.transition = "opacity 0.5s ease";
-  overlay.innerText = text;
-
-  document.body.appendChild(overlay);
-
-  // Fade out and remove
-  setTimeout(() => {
-    overlay.style.opacity = "0";
-    setTimeout(() => overlay.remove(), 500); // Wait for fade to finish
-  }, 2500);
-}
+init();

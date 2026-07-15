@@ -1,5 +1,9 @@
 // @author John Cai
 // @date 2024-07-11
+
+import { MESSAGES } from "./messages";
+
+// Constants for DOM elements
 const animeLinkElement = document.getElementById(
   "anime-link",
 ) as HTMLAnchorElement | null;
@@ -10,6 +14,31 @@ const prevButton = document.getElementById(
 const nextButton = document.getElementById(
   "next-btn",
 ) as HTMLButtonElement | null;
+
+// ------------------------------
+// INITIALIZATION
+// ------------------------------
+
+chrome.runtime.sendMessage({ type: MESSAGES.GET_ANIME_NAME }, (response) => {
+  if (!animeLinkElement) return;
+  if (response?.onPlayPage) {
+    setAnimeLink(response.name);
+  } else {
+    noAnimeFound(animeLinkElement);
+  }
+});
+
+if (prevButton) {
+  prevButton.addEventListener("click", () => navigateEpisode("prev"));
+}
+
+if (nextButton) {
+  nextButton.addEventListener("click", () => navigateEpisode("next"));
+}
+
+// ------------------------------
+// FUNCTIONS
+// ------------------------------
 
 /**
  * Set the anime link based on the provided search query by sending a message to the background script.
@@ -34,7 +63,7 @@ function setAnimeLink(searchQuery: string) {
   animeLinkElement.textContent = "Searching...";
 
   chrome.runtime.sendMessage(
-    { type: "FETCH_MAL_DATA", query: searchQuery },
+    { type: MESSAGES.FETCH_MAL_LINK, query: searchQuery },
     (response) => {
       if (response && response.success) {
         const data = response.data;
@@ -43,6 +72,8 @@ function setAnimeLink(searchQuery: string) {
           const anime = data.data[0].node;
           animeLinkElement.textContent = anime.title;
           animeLinkElement.href = `https://myanimelist.net/anime/${anime.id}`;
+
+          fetchAnimeScore(anime.id);
         } else {
           noAnimeFound(animeLinkElement);
         }
@@ -50,15 +81,6 @@ function setAnimeLink(searchQuery: string) {
     },
   );
 }
-
-chrome.runtime.sendMessage({ type: "GET_ANIME_NAME" }, (response) => {
-  if (!animeLinkElement) return;
-  if (response?.onPlayPage) {
-    setAnimeLink(response.name);
-  } else {
-    noAnimeFound(animeLinkElement);
-  }
-});
 
 /**
  * Display a message indicating that no anime was found and disable the link.
@@ -79,19 +101,33 @@ function navigateEpisode(direction: "next" | "prev") {
     const tab = tabs[0];
 
     if (tab?.id) {
-      chrome.tabs.sendMessage(tab.id, { type: "NAVIGATE", direction }, () => {
-        void chrome.runtime.lastError;
-      });
+      chrome.tabs.sendMessage(
+        tab.id,
+        { type: MESSAGES.NAVIGATE, direction },
+        () => {
+          void chrome.runtime.lastError;
+        },
+      );
     } else {
       window.close();
     }
   });
 }
 
-if (prevButton) {
-  prevButton.addEventListener("click", () => navigateEpisode("prev"));
-}
+function fetchAnimeScore(animeId: number) {
+  const animeScoreEl = document.getElementById("anime-score");
+  if (!animeScoreEl) return;
 
-if (nextButton) {
-  nextButton.addEventListener("click", () => navigateEpisode("next"));
+  chrome.runtime.sendMessage(
+    { type: MESSAGES.FETCH_MAL_SCORE, id: animeId },
+    (response) => {
+      if (chrome.runtime.lastError) {
+        animeScoreEl.textContent = "N/A";
+        return;
+      }
+      animeScoreEl.textContent = response?.success
+        ? response.score.toString()
+        : "N/A";
+    },
+  );
 }

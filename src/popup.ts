@@ -21,7 +21,7 @@ const nextButton = document.getElementById(
 
 chrome.runtime.sendMessage({ type: MESSAGES.GET_ANIME_NAME }, (response) => {
   if (!animeLinkElement) return;
-  if (response?.onPlayPage) {
+  if (response?.onSupportedPage) {
     setAnimeLink(response.name);
   } else {
     noAnimeFound(animeLinkElement);

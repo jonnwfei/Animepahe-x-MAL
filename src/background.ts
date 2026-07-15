@@ -7,9 +7,13 @@ const PLAY_URL = /^https:\/\/[^/]*animepahe\.[^/]+\/play\//;
 const ANIME_URL = /^https:\/\/[^/]*animepahe\.[^/]+\/anime\//;
 
 interface AnimeNameResponse {
-  onPlayPage: boolean;
+  onSupportedPage: boolean;
   name?: string;
 }
+
+// ------------------------------
+// Listener for messages from content scripts or popup
+// ------------------------------
 
 chrome.runtime.onMessage.addListener((msg, _sender, sendResponse) => {
   switch (msg.type) {
@@ -32,23 +36,23 @@ function handleAnimeName(sendResponse: (response: AnimeNameResponse) => void) {
   chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
     const tab = tabs[0];
 
-    // NOT on a play Page or Anime Page
+    // NOT on a supported Page (play/anime)
     if (
       !tab?.id ||
       !tab.url ||
       (!PLAY_URL.test(tab.url) && !ANIME_URL.test(tab.url))
     ) {
-      sendResponse({ onPlayPage: false } satisfies AnimeNameResponse);
+      sendResponse({ onSupportedPage: false } satisfies AnimeNameResponse);
       return;
     }
 
-    // On a play page
+    // On a supported Page (play/anime)
     chrome.tabs.sendMessage(
       tab.id,
       { type: MESSAGES.SCRAPE_ANIME_NAME },
       (res) => {
         sendResponse({
-          onPlayPage: true,
+          onSupportedPage: true,
           name: res?.name ?? "",
         });
       },

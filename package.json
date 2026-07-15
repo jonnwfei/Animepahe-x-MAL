@@ -1,11 +1,11 @@
 {
   "scripts": {
-    "build": "tsc && cp -r public/* dist/",
-    "watch": "tsc -w"
+    "build": "node build.mjs",
+    "watch": "node build.mjs --watch"
   },
   "devDependencies": {
     "@types/chrome": "^0.1.36",
-    "cpy-cli": "^7.0.0",
+    "esbuild": "0.28.1",
     "typescript": "^6.0.3"
   },
   "name": "animepahe-x-mal",
@@ -17,7 +17,7 @@
     "url": "git+https://github.com/jonnwfei/Animepahe-x-MAL.git"
   },
   "keywords": [],
-  "author": "",
+  "author": "John Cai",
   "license": "ISC",
   "type": "commonjs",
   "bugs": {

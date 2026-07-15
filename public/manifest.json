@@ -9,7 +9,7 @@
     "https://*.animepahe.com/play/*",
     "https://api.myanimelist.net/*"
   ],
-  "background": { "service_worker": "background.js", "type": "module" },
+  "background": { "service_worker": "background.js" },
   "content_scripts": [
     {
       "matches": [

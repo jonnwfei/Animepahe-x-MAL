@@ -13,16 +13,25 @@ body {
 .title {
   font-size: 14px;
   font-weight: bold;
-  padding: 12px 8px;         /* A bit more padding makes backgrounds look better */
+  padding: 12px 8px 2px;         /* A bit more padding makes backgrounds look better */
   margin: 0;                 /* Removes the default space around h1 tags */
   background-color: #322a26; /* Darker shade for the header area */
   color: #ffffff;            /* Bright white text for the title */
-  border-bottom: 1px solid #333; /* Optional: adds a subtle line to separate the header */
 }
 
 .anime-link {
   color: #edfccc; 
   text-decoration: none;
+}
+
+.episode-info {
+  color: #ffffff;   
+  font-size: 14px;
+  padding: 0px 8px 2px; /* Padding for better spacing */
+  font-weight: bold;
+  margin: 0;
+  background-color: #322a26;; /* Darker shade for the header area */
+  border-bottom: 1px solid #333;
 }
 
 .button-container {

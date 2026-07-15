@@ -4,6 +4,17 @@ const animeLinkElement = document.getElementById(
   "anime-link",
 ) as HTMLAnchorElement | null;
 
+const prevButton = document.getElementById(
+  "prev-btn",
+) as HTMLButtonElement | null;
+const nextButton = document.getElementById(
+  "next-btn",
+) as HTMLButtonElement | null;
+
+/**
+ * Set the anime link based on the provided search query by sending a message to the background script.
+ * @param searchQuery - The search query to fetch anime data from MyAnimeList.
+ */
 function setAnimeLink(searchQuery: string) {
   if (chrome.runtime.lastError) {
     console.warn(
@@ -49,8 +60,38 @@ chrome.runtime.sendMessage({ type: "GET_ANIME_NAME" }, (response) => {
   }
 });
 
+/**
+ * Display a message indicating that no anime was found and disable the link.
+ * @param AnimeLinkElement - The anchor element to update with the message.
+ */
 function noAnimeFound(AnimeLinkElement: HTMLAnchorElement) {
   AnimeLinkElement.textContent = "No anime found";
   AnimeLinkElement.style.color = "#f45b5b48";
   AnimeLinkElement.removeAttribute("href");
+}
+
+/**
+ * Navigate to the next or previous episode by sending a message to the content script.
+ * @param direction - The direction to navigate, either "next" or "prev".
+ */
+function navigateEpisode(direction: "next" | "prev") {
+  chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+    const tab = tabs[0];
+
+    if (tab?.id) {
+      chrome.tabs.sendMessage(tab.id, { type: "NAVIGATE", direction }, () => {
+        void chrome.runtime.lastError;
+      });
+    } else {
+      window.close();
+    }
+  });
+}
+
+if (prevButton) {
+  prevButton.addEventListener("click", () => navigateEpisode("prev"));
+}
+
+if (nextButton) {
+  nextButton.addEventListener("click", () => navigateEpisode("next"));
 }

@@ -1,6 +1,8 @@
 // @author John Cai
 // @date 2024-07-11
 
+import { MESSAGES } from "./messages";
+
 type Direction = "next" | "prev";
 
 const CONFIG = {
@@ -108,29 +110,25 @@ const NavigationManager = {
   },
 };
 
-const navElements = {
-  next: document.querySelector(
-    CONFIG.selectors.next,
-  ) as HTMLAnchorElement | null,
-  prev: document.querySelector(
-    CONFIG.selectors.prev,
-  ) as HTMLAnchorElement | null,
-};
-
 function initMessageListener() {
   chrome.runtime.onMessage.addListener((msg: any, _sender, sendResponse) => {
-    if (msg.type === "SCRAPE_ANIME_NAME") {
-      const el = document.querySelector(CONFIG.selectors.title);
-      if (!el) {
-        console.warn("Anime title element not found.");
-        return;
-      }
-      const name = el.getAttribute("title")?.toString() || document.title;
-      sendResponse({ name });
-    }
-    if (msg.type === "NAVIGATE") {
-      sendResponse({ success: true });
-      NavigationManager.trigger(msg.direction);
+    switch (msg.type) {
+      case MESSAGES.SCRAPE_ANIME_NAME:
+        const el = document.querySelector(CONFIG.selectors.title);
+        if (!el) {
+          console.warn("Anime title element not found.");
+          return;
+        }
+        const name = el.getAttribute("title")?.toString() || document.title;
+        sendResponse({ name });
+        break;
+      case MESSAGES.NAVIGATE:
+        sendResponse({ success: true });
+        NavigationManager.trigger(msg.direction);
+        break;
+      default:
+        console.warn("Unknown message type received:", msg.type);
+        sendResponse({ error: "Unknown message type" });
     }
   });
 }
